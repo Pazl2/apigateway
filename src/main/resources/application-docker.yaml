@@ -1,0 +1,18 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: ${AUTH_SERVICE_URI:http://auth-service:8081}
+              predicates:
+                - Path=/api/auth/**
+            - id: user-service
+              uri: ${USER_SERVICE_URI:http://user-service:8080}
+              predicates:
+                - Path=/users/**,/cards/**
+            - id: order-service
+              uri: ${ORDER_SERVICE_URI:http://orderservice:8082}
+              predicates:
+                - Path=/orders/**
