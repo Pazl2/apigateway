@@ -1,4 +1,4 @@
-package com.innowise.apigateway.dto;
+package com.innowise.apigateway.dto.output;
 
 public record ErrorResponse(int status, String error, String message) {
 }

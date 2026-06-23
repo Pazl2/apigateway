@@ -1,4 +1,4 @@
-package com.innowise.apigateway.config;
+package com.innowise.apigateway.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -29,8 +29,8 @@ public class JwtValidator {
 
     public Claims validateAccessToken(String token) {
         Claims claims = parse(token);
-        if (claims.getExpiration() == null || claims.getExpiration().before(new Date())) {
-            throw new IllegalArgumentException("Token expired");
+        if (claims.getExpiration() == null) {
+            throw new IllegalArgumentException("Token has no expiry");
         }
         if (!"access".equals(claims.get("typ", String.class))) {
             throw new IllegalArgumentException("Token is not an access token");

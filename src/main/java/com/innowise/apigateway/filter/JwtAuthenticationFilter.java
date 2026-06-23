@@ -1,9 +1,9 @@
 package com.innowise.apigateway.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innowise.apigateway.config.JwtValidator;
+import com.innowise.apigateway.security.JwtValidator;
 import com.innowise.apigateway.config.SecurityProperties;
-import com.innowise.apigateway.dto.ErrorResponse;
+import com.innowise.apigateway.dto.output.ErrorResponse;
 import io.jsonwebtoken.Claims;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -19,6 +19,8 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+
 @Component
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
@@ -27,7 +29,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private final JwtValidator jwtValidator;
     private final SecurityProperties securityProperties;
     private final ObjectMapper objectMapper;
-    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
     public JwtAuthenticationFilter(JwtValidator jwtValidator,
                                    SecurityProperties securityProperties,
@@ -83,7 +85,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private boolean isOpenEndpoint(String path) {
         return securityProperties.getOpenEndpoints().stream()
-                .anyMatch(pattern -> pathMatcher.match(pattern, path));
+                .anyMatch(pattern -> PATH_MATCHER.match(pattern, path));
     }
 
     private Mono<Void> unauthorized(ServerWebExchange exchange, String message) {
@@ -91,15 +93,13 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         ErrorResponse body = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "Unauthorized", message);
-        byte[] bytes;
         try {
-            bytes = objectMapper.writeValueAsBytes(body);
-        } catch (Exception e) {
-            bytes = ("{\"status\":401,\"error\":\"Unauthorized\",\"message\":\"" + message + "\"}")
-                    .getBytes();
+            byte[] bytes = objectMapper.writeValueAsBytes(body);
+            DataBuffer buffer = response.bufferFactory().wrap(bytes);
+            return response.writeWith(Mono.just(buffer));
+        } catch (IOException e) {
+            return Mono.error(e);
         }
-        DataBuffer buffer = response.bufferFactory().wrap(bytes);
-        return response.writeWith(Mono.just(buffer));
     }
 
     @Override

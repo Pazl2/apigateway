@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
-      POSTGRES_DB: ${DB_USERNAME:-postgres}
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
     volumes:
@@ -33,7 +33,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/auth_db
+      DB_URL: ${AUTH_DB_URL:-jdbc:postgresql://postgres:5432/auth_db}
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-secret}
       JWT_SECRET: ${JWT_SECRET}
@@ -57,7 +57,7 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
 
   orderservice:
     build: ../orderservice
