@@ -1,20 +1,10 @@
 package com.innowise.apigateway.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "gateway.security")
-public class SecurityProperties {
-
-    private List<String> openEndpoints = new ArrayList<>();
-
-    public List<String> getOpenEndpoints() {
-        return openEndpoints;
-    }
-
-    public void setOpenEndpoints(List<String> openEndpoints) {
-        this.openEndpoints = openEndpoints;
-    }
+public record SecurityProperties(@DefaultValue List<String> openEndpoints) {
 }

@@ -84,7 +84,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isOpenEndpoint(String path) {
-        return securityProperties.getOpenEndpoints().stream()
+        return securityProperties.openEndpoints().stream()
                 .anyMatch(pattern -> PATH_MATCHER.match(pattern, path));
     }
 
