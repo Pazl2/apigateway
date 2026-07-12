@@ -1,0 +1,2 @@
+jwt:
+  secret: test-secret-key-please-use-a-longer-value-32-bytes-min

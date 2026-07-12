@@ -1,0 +1,5 @@
+docker-compose.yaml
+.env
+target
+.git
+.idea
